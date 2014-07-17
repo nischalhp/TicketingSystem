@@ -3,6 +3,7 @@ from flask import request
 from Formvalidation import Formvalidation
 from Search import Search
 from Data import Data
+import json
 app=Flask(__name__,instance_relative_config=True)
 
 
@@ -46,12 +47,13 @@ def generate_ticket():
 
 @app.route('/search/',methods=['GET'])
 def search_ticket():
+	response = {}
 	vehicle_no = request.args.get('vehicle_no','')
 	timestamp = request.args.get('time','')
 	try:
 		searchobj = Search()
 		outlist = searchobj.validate_data(vehicle_no,timestamp)
-		return jsonify(outlist)
+		return json.dumps(outlist)
 	except Exception as e:
 		response['success'] = False 
 		response['data'] = []
@@ -62,10 +64,11 @@ def search_ticket():
 
 @app.route('/data/',methods=['GET'])
 def get_data():
+	response = {}
 	try:
 		dataobj = Data()
 		outlist = dataobj.get_data()
-		return jsonify(outlist)
+		return json.dumps(outlist)
 	except Exception as e:
 		response['success'] = False 
 		response['data'] = []
@@ -73,7 +76,7 @@ def get_data():
 		return_obj = jsonify(response)
 		return_obj.status_code = 500
 		return return_obj
-		
+
 
 
 if __name__=='__main__':
