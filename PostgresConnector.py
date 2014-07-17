@@ -17,10 +17,10 @@ class PostgresConnector:
 		self.dbname = parameter_dict['dbname']
 		self.user = parameter_dict['user']
 		self.pwd = parameter_dict['password']
-
+		self.port = parameter_dict['port']
 
 	def get_connection(self):
-		conn = psycopg2.connect(dbname=self.dbname,host=self.host,password=self.pwd,user=self.user) 
+		conn = psycopg2.connect(dbname=self.dbname,host=self.host,password=self.pwd,user=self.user,port=self.port) 
 		return conn
 
 
