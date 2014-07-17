@@ -2,6 +2,7 @@ from flask import Flask,send_file,jsonify
 from flask import request
 from Formvalidation import Formvalidation
 from Search import Search
+from Data import Data
 app=Flask(__name__,instance_relative_config=True)
 
 
@@ -50,7 +51,6 @@ def search_ticket():
 	try:
 		searchobj = Search()
 		outlist = searchobj.validate_data(vehicle_no,timestamp)
-		print outlist
 		return jsonify(outlist)
 	except Exception as e:
 		response['success'] = False 
@@ -61,6 +61,20 @@ def search_ticket():
 		return return_obj
 
 @app.route('/data/',methods=['GET'])
+def get_data():
+	try:
+		dataobj = Data()
+		outlist = dataobj.get_data()
+		return jsonify(outlist)
+	except Exception as e:
+		response['success'] = False 
+		response['data'] = []
+		response['message'] = e 
+		return_obj = jsonify(response)
+		return_obj.status_code = 500
+		return return_obj
+		
+
 
 if __name__=='__main__':
 	app.run(host='0.0.0.0',debug=True)
