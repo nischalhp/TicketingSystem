@@ -35,7 +35,7 @@
   </div>
  </br> 
  </br> 
- </br> 
+ </br>  
   <!--adding the side bar -->
   <div class="container-fluid">
     <div class="row-fluid">
@@ -43,45 +43,34 @@
         <div class="well sidebar-nav">
           <ul class="nav nav-list">
             <li class="nav-header">Options</li>
-            <li class="active"><a href="#">Create Ticket</a></li>
-            <li ><a href="/search.html">Search</a></li>
+            <li><a href="/">Create Ticket</a></li>
+            <li class="active"><a href="/search.html">Search</a></li>
 
           </ul>
         </div><!--/.well -->
       </div><!--/span-->
-        <div class="span9">
+      <div class="span9">
         <div id="row">
               <div id="info">
               </div>
         </div>
         <div class="hero-unit">
-          <h1>Create ticket</h1>
+          <h1>Search</h1>
           <form class="form-horizontal">
             <div class="control-group">
-              <label class="control-label" for="vehicle-type">Vehicle Type : </label>
-              <select id="vehicle-type">
-              </select>
-            </div>
-            <div class="control-group">
-              <label class="control-label" for="toll-type">Toll Type : </label>
-              <select id="toll-type">
-              </select>
-            </div>
-            <div class="control-group">
-              <label class="control-label" for="price">Price : </label>
-                <input type="text" id="price" disabled>
-            </div>
-            <div class="control-group">
-              <label class="control-label" for="vehicle_no">Vehicle No: </label>
-                <input type="text" id="vehicle_no">
+              <label class="control-label" for="vehicle-search">Vehicle Search: </label>
+                <input type="text" id="vehicle-search">
             </div>
               <label class="control-label" for="submit"></label>
-                <button type="button" class="btn btn-primary" id="submit-button">Submit</button>
+                <button type="button" class="btn btn-primary" id="submit-button-search">Submit</button>
             </div>
           </form><!-- form -->           
+          <table class="table" id="search-op" style="display:none">
+        
+          </table>
+        </div><!--hero unit-->
+      </div><!--span-->
 
-      </div><!--hero unit-->
-    </div><!--span-->
 
 
     <!-- Le javascript 
@@ -96,7 +85,7 @@
     <script src="/static/js/d3.layout.cloud.js"></script>
     <script src="/static/js/jQDateRangeSlider-min.js"></script>
     <script src="http://cloud.github.com/downloads/wycats/handlebars.js/handlebars-1.0.rc.1.min.js"></script>
-    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.js"></script>/
 
 
   </body>

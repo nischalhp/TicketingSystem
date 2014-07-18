@@ -22,5 +22,6 @@ class Formvalidation:
 				return 'Success'
 			except psycopg2.IntegrityError as e:
 				raise Exception(' Unique key constraint failed ')
-			except Exception:	
+			except Exception as e:	
+				print e
 				raise Exception(' Something else went wrong')

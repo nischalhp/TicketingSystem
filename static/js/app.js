@@ -1,261 +1,153 @@
-var geoid = '';
-var trend = '';
 $( function(){
 	app = {
+
+
 			//init is the property of the object app which is
 			// represented as a function	
 			init : function(){
+				$("#price").val('');
+				$("#vehicle_no").val('');
+
 				$.ajax({
 					type: "GET",
-					url: "/locations"
+					url: "/data"
 				}).success(function(response){
-					app.onLocationSuccess(response);
+					app.data = JSON.parse(response);
+					app.onDataSuccess(app.data.data);
+
 				});
-
-				var source = $("#tweet-tpl").html();
-				var template = Handlebars.compile(source);
-				this.tweet_template = template;
-
-
-
-				var source_adj = $("#adj-tpl").html();
-				var template_adj = Handlebars.compile(source_adj);
-				this.template_adj = template_adj;
-
 			},
 
 
-			onLocationSuccess : function(response){
-				var lineItems = '';
-				$.each(response.data, function(index,location){
-					var lineItem = '<li class="pull-left li-items" > <a href="#" class="location-items" data-geoid="'+location.geoid+'">'+location.city+'</a></li>';
-					lineItems = lineItems+lineItem;
+			onDataSuccess: function(data){
+				var lineItemsVehicle = '';
+				$.each(data, function(index,vehicle){
+					var lineItem = '<option value='+vehicle.vehicle_type_id+'>'+vehicle.vehicle_type+'</option>';
+					lineItemsVehicle = lineItemsVehicle+lineItem;
 				});
-				$("#location-list").html(lineItems);
+				$("#vehicle-type").html(lineItemsVehicle);
+				$('#vehicle-type').trigger('change');
 			},
 
+			onClickVehicle: function(id){
+				var lineItemsToll = '';
+				$.each(app.data.data, function(index,vehicle){
+					if (vehicle.vehicle_type_id == id){
+						journey_array = vehicle.journey;
+						$.each(journey_array,function(index,journey){
+							var lineItem = '<option value='+journey.toll_id+'>'+journey.toll_type+'</option>';
+							lineItemsToll = lineItemsToll+lineItem;
+						})
+					}
+				});
 
-			getTrends : function(geoid,min_date,max_date){
-				console.log(min_date,max_date);
+				$("#toll-type").html(lineItemsToll);
+				$("#toll-type").trigger('change');
+			},
+
+			onClickToll: function(vehicle_type_id,toll_type_id){
+				var lineItemsToll = '';
+				$.each(app.data.data, function(index,vehicle){
+					if (vehicle.vehicle_type_id == vehicle_type_id){
+						journey_array = vehicle.journey;
+						$.each(journey_array,function(index,journey){
+							if(journey.toll_id == toll_type_id){
+								app.user_selection.price = journey.price;
+								$("#price").val(journey.price);
+							}
+						})
+					}
+				});
+
+			},
+
+			insertData : function(vehicle_type,toll_type,time,price,vehicle_no){
 				$.ajax({
-					type: "GET",
-					url : "/trends?locationid="+geoid+"&min_date="+min_date+"&max_date="+max_date
+					type: "POST",
+					url: "/ticket/",
+					data: {'vehicle_type':vehicle_type,'toll_type':toll_type
+					,'time':time,'price':price,'vehicle_no':vehicle_no}
 				}).success(function(response){
-					graphTrends.displayTrends(response.data);
+					$("#info").html('<div class="alert alert-info">Succesfully inserted data <button class="close" data-dismiss="alert">&times;</button></div>');
 				}).error(function(response){
-					console.log(response);
-				});
-			},
+					resp = JSON.parse(response.responseText);
+					$("#info").html('<div class="alert alert-error">'+resp.message+'<button class="close" data-dismiss="alert">&times;</button></div>');
 
-			getDates : function(locationid){
+
+				});
+
+
+
+			},
+			getData: function(vehicle_no){
 				$.ajax({
 					type: "GET",
-					url : "/dates/"+locationid
+					url: "/search/?vehicle_no="+vehicle_no
 				}).success(function(response){
-					app.setSlider(response.data[0].min_date,response.data[0].max_date);
-					app.getTrends(geoid,response.data[0].min_date,response.data[0].max_date);
-				}).error(function(response){
-					console.log(response);
-				});
-
-
-			},
-
-			setSlider : function(min_date,max_date){
-				console.log(min_date,max_date);
-				var min = new Date(min_date),max = new Date(max_date);
-				$('#slider').dateRangeSlider({
-					bounds:{
-						min  : min,
-						max : max
-					},
-					defaultValues:{
-						min : min,
-						max : max
-					},
-					arrows:true,
-				});	
-			},
-
-			getTfidfEntites : function(locationid,trend){
-				console.log(trend);
-				$.ajax({
-					type: "GET",
-					url : "/tfidf/?locationid="+encodeURIComponent(locationid)+"&trend="+encodeURIComponent(trend)
-				}).success(function(response){
-					graphTfidf.displayTfidf(response.data);
-				}).error(function(response){
-					console.log(response);
-				});
-			},
-			getTweets : function(trend,entity){
-				console.log(trend);
-				$.ajax({
-					type: "GET",
-					url : "/tweets/?trend="+encodeURIComponent(trend)+"&entity="+encodeURIComponent(entity)
-				}).success(function(response){
-					$("#tweets-container").html(app.tweet_template(response));
-					$("#tweetModal").modal("show");
-					console.log(response)
-				}).error(function(response){
-					console.log(response);
-				});
-			},
-				getAdjacencyMatrix : function(geoid){
-				console.log(trend);
-				$.ajax({
-					type: "GET",
-					url : "/kmedoids/"+geoid
-				}).success(function(response){
-					miserables = response;
-					$("#adj-cont").html(app.template_adj(response));
-				}).error(function(response){
-					console.log(response);
-				});
-
-		}
-	}
-
-		graphTrends = {
-
-			displayTrends: function(trends){
-				var fill = d3.scale.category20();
-
-				d3.layout.cloud().size([1200, 300])
-				.words(trends
-					.map(function(d) {
-						return {text: d.trend, size: 20 + d.count};
-					}))
-				.padding(30)
-				.font("Impact")
-				.fontSize(function(d) { return d.size; })
-				.on("end", draw)
-				.start();
-
-				function draw(words) {
-					d3.select(".trends-chart").append("svg")
-					.attr("width", 960)
-					.attr("height", 300)
-					.append("g")
-					.attr("width",900)
-					.attr("height",250)
-					.attr("transform", "translate(400,100)")
-					.selectAll("text")
-					.data(words)
-					.enter().append("text")
-					.style("font-size", function(d) { return d.size + "px"; })
-					.style("font-family", "Impact")
-					.style("fill", function(d, i) { return fill(i); })
-					.attr("text-anchor", "middle")
-					.attr("transform", function(d) {
-						return "translate(" + [d.x, d.y] + ")";
+					var init_template = "<thead><tr> <th>Vehicle No</th> <th>Vehicle Type</th> <th>Toll Type</th> <th>Price</th> <th>Time</th> </tr> </thead>";
+					$("#search-op").show();
+					resp = JSON.parse(response);
+					var template = '';
+					$.each(resp.data,function(index,data){
+						template = template + "<tr><td>"+data.vehicle_no+"</td><td>"+data.vehicle_type+"</td><td>"+data.toll_type+"</td><td>"+data.price+"</td><td>"+data.time+"</td>";
 					})
-					.text(function(d) { return d.text; })
-					.on("click",function(d){
-						$("#entity-chart").html("");
-						trend = d.text;
-						app.getTfidfEntites(geoid,d.text);
-					});
-				}
+					$("#search-op").html(init_template+template)
+				}).error(function(response){
+					resp = JSON.parse(response.responseText);
+					$("#info").html('<div class="alert alert-error">'+resp.message+'<button class="close" data-dismiss="alert">&times;</button></div>');
 
-			}
 
-		}
-
-		graphTfidf = {
-
-			displayTfidf: function(trends){
-				var fill = d3.scale.category10();
-
-				d3.layout.cloud().size([1200, 300])
-				.words(trends
-					.map(function(d) {
-						return {text: d.entity, size: 20 + Math.log(d.tfidf)};
-					}))
-				.padding(5)
-				.font("Impact")
-				.fontSize(function(d) { return d.size; })
-				.on("end", draw)
-				.start();
-
-				function draw(words) {
-					d3.select("#entity-chart").append("svg")
-					.attr("width", 960)
-					.attr("height", 300)
-					.append("g")
-					.attr("width",900)
-					.attr("height",250)
-					.attr("transform", "translate(400,100)")
-					.selectAll("text")
-					.data(words)
-					.enter().append("text")
-					.style("font-size", function(d) { return d.size + "px"; })
-					.style("font-family", "Impact")
-					.style("fill", function(d, i) { return fill(i); })
-					.attr("text-anchor", "middle")
-					.attr("transform", function(d) {
-						return "translate(" + [d.x, d.y] + ")";
-					})
-					.text(function(d) { return d.text; })
-					.on("click",function(d){
-						app.getTweets(trend,d.text);
-					});
-				}
-
-			}
-
-		}
+				});
 
 
 
+			}	
+
+		}}());
 
 
-	}());
+$("#vehicle-type").on('change',function(event){
+	app.user_selection = new Object();
+	app.user_selection.vehicle_type_id = $(this).val();
+	app.onClickVehicle(app.user_selection.vehicle_type_id);
+});
 
+$("#toll-type").on('change',function(event){
+	app.user_selection.toll_type_id = $(this).val();
+	app.onClickToll(app.user_selection.vehicle_type_id,app.user_selection.toll_type_id);
+});
 
-
-
-app.init();
-
-/* Attaching click handler to location list */ 
-$("#location-list").on('click',".location-items" , function(event){
-	$(".location-items").parent().removeClass("active");
-	/* The click is on the anchor tag but we need make the whole line as active hence we uses this.parent*/
-	$(this).parent().addClass("active");	
-	/*app.getTrends($(this).attr("data-geoid"));*/
-	geoid = '';
-	geoid = $(this).attr("data-geoid") ;
-	$('#trends').html("");
-	$('#entity-chart').html("");
-	app.getDates(geoid);
+$("#submit-button").on('click',function(event){
+	app.insertData(app.user_selection.vehicle_type_id,app.user_selection.toll_type_id,getTimeStamp(),
+		app.user_selection.price,$("#vehicle_no").val());
 
 });
 
-
-// bind function to date slider
-$("#slider").bind("valuesChanged", function(e, data){
-	var  min_date = convertMillisecondsToDate(Date.parse(data.values.min));
-	var max_date = convertMillisecondsToDate(Date.parse(data.values.max));
-	$("#trends").html("");
-	$("#entity-chart").html("");
-	app.getTrends(geoid,min_date,max_date);
-});
-
-$("#adj-mat").on('click',"#btn-sim" , function(event){
-	app.getAdjacencyMatrix(geoid);
+$("#submit-button-search").on('click',function(event){
+	app.getData($("#vehicle-search").val());
 
 });
-
-function convertMillisecondsToDate(millseconds){
-	date = new Date(millseconds).getDate();
-	year = new Date(millseconds).getFullYear();
-	month = new Date(millseconds).getMonth();
+function getTimeStamp(){
+	d = new Date();
+	date = d.getDate();
+	year = d.getFullYear();
+	month = d.getMonth();
 	month = month + 1;
+	hour = d.getHours();
+	min = d.getMinutes();
+	sec = d.getSeconds(); 
 	if (month < 10){
 		month = '0'+month;
 	}
 	if (date < 10){
 		date = '0'+date;
 	}
-	return year+'-'+month+'-'+date;//+"-"+month+"-"date;
+	return year+'-'+month+'-'+date+' '+hour+':'+min+':'+sec;//+"-"+month+"-"date;
 }
+
+
+
+app.init();
+
+
+

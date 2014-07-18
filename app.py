@@ -9,8 +9,13 @@ app=Flask(__name__,instance_relative_config=True)
 
 # directing to the page based on url
 @app.route('/')
-def hello_world():
+def index():
 	return send_file('static/index.html')
+
+@app.route('/search.html/')
+def search():
+	return send_file('static/search.html')
+
 
 @app.route('/ticket/', methods=['POST']	)
 def generate_ticket():
@@ -18,10 +23,11 @@ def generate_ticket():
 	try:
 		vehicle_type = request.form['vehicle_type']
 		toll_type = request.form['toll_type']
-		price = request.form['price']
 		timestamp = request.form['time']
+		price = request.form['price']
 		vehicle_no = request.form['vehicle_no']
 	except KeyError as e:
+		print e
 		response['success'] = False
 		response['data'] = []
 		response['message'] = 'Required Parameters not sent'
@@ -30,6 +36,7 @@ def generate_ticket():
 		return return_obj
 	try:	
 		formObject = Formvalidation()
+		print vehicle_type,toll_type,timestamp,price,vehicle_no
 		status = formObject.validate_data(vehicle_type,toll_type,timestamp,price,vehicle_no)
 		if status == 'Success':
 			response['success'] = True
@@ -38,6 +45,7 @@ def generate_ticket():
 			return_obj = jsonify(response)
 			return return_obj
 	except Exception as e:
+			print e
 			response['success'] = False 
 			response['data'] = []
 			response['message'] = str(e)
@@ -53,13 +61,15 @@ def search_ticket():
 	try:
 		searchobj = Search()
 		outlist = searchobj.validate_data(vehicle_no,timestamp)
-		return json.dumps(outlist)
+		out_list = {}
+		out_list['data'] = outlist
+		return json.dumps(out_list)
 	except Exception as e:
 		response['success'] = False 
 		response['data'] = []
-		response['message'] = e 
+		response['message'] = str(e)
 		return_obj = jsonify(response)
-		return_obj.status_code = 500
+		return_obj.status_code = 400 
 		return return_obj
 
 @app.route('/data/',methods=['GET'])
@@ -68,7 +78,9 @@ def get_data():
 	try:
 		dataobj = Data()
 		outlist = dataobj.get_data()
-		return json.dumps(outlist)
+		out_list = {}
+		out_list['data'] = outlist
+		return json.dumps(out_list)
 	except Exception as e:
 		response['success'] = False 
 		response['data'] = []
