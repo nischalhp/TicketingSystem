@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>TicketGenie</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Le styles -->
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/css/bootstrap-responsive.min.css" rel="stylesheet">
+</style>
+
+</head>
+
+<body>
+  <!-- adding top navigation bar -->
+  <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="brand" href="#">TicketGenie</a>
+        <div class="nav-collapse collapse">
+          <ul class="nav">
+            <li class="active"><a href="#">Home</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+  </div>
+ </br> 
+ </br> 
+ </br> 
+  <!--adding the side bar -->
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="span3">
+        <div class="well sidebar-nav">
+          <ul class="nav nav-list">
+            <li class="nav-header">Options</li>
+            <li class="active"><a href="#">Create Ticket</a></li>
+            <li ><a href="/search.html">Search</a></li>
+
+          </ul>
+        </div><!--/.well -->
+      </div><!--/span-->
+        <div class="span9">
+        <div id="row">
+              <div id="info">
+              </div>
+        </div>
+        <div class="hero-unit">
+          <h1>Create ticket</h1>
+          <form class="form-horizontal">
+            <div class="control-group">
+              <label class="control-label" for="vehicle-type">Vehicle Type : </label>
+              <select id="vehicle-type">
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="toll-type">Toll Type : </label>
+              <select id="toll-type">
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="price">Price : </label>
+                <input type="text" id="price" disabled>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="vehicle_no">Vehicle No: </label>
+                <input type="text" id="vehicle_no">
+            </div>
+              <label class="control-label" for="submit"></label>
+                <button type="button" class="btn btn-primary" id="submit-button">Submit</button>
+            </div>
+          </form><!-- form -->           
+
+      </div><!--hero unit-->
+    </div><!--span-->
+
+
+    <!-- Le javascript 
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+
+    <!--  <script src="static/js/jquery-2.1.1.min.js"></script> -->
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+    <script src="/static/js/app.js"></script>
+
+
+  </body>
+  </html>
