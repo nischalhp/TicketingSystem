@@ -4,7 +4,7 @@ import java.sql.DriverManager;
 public class DBConnector {
 
 	public static final String host = "127.0.0.1";
-	public static final String port = "5432";
+	public static final String port = "5433";
 	public static final String username = "postgres";
 	public static final String password = "tiger";
 	public static final String db = "postgres";
